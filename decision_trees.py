@@ -133,25 +133,30 @@ def x_y_split(dataset):
 
 
 if __name__ == '__main__':
-    data, meta = loadarff("training.arff")
-    phishing = pd.DataFrame(data)
-    for column in phishing:
-        phishing[column] = phishing[column].str.decode('utf-8')
-    phishing = phishing.astype(int)
-
-    # I think -1 = Legitimate, 0 = Suspicious , and 1 = Phishing
-    training_set: pd.DataFrame
-    testing_set: pd.DataFrame
-    validation_set: pd.DataFrame
-    train_val_set: pd.DataFrame
-    training_set, testing_set, validation_set, train_val_set = preprocess_data(phishing)
-
-    # getting X and Y for testing, training, and validation
-    x_test, y_test = x_y_split(testing_set)
-    x_train, y_train = x_y_split(training_set)
-    x_val, y_val = x_y_split(validation_set)
-    x_train_val, y_train_val = x_y_split(train_val_set)
-
-    tree = DecisionTree()
-    profile.run('tree.fit(x_train, y_train)')
+    # data, meta = loadarff("training.arff")
+    # phishing = pd.DataFrame(data)
+    # for column in phishing:
+    #     phishing[column] = phishing[column].str.decode('utf-8')
+    # phishing = phishing.astype(int)
+    #
+    # # I think -1 = Legitimate, 0 = Suspicious , and 1 = Phishing
+    # training_set: pd.DataFrame
+    # testing_set: pd.DataFrame
+    # validation_set: pd.DataFrame
+    # train_val_set: pd.DataFrame
+    # training_set, testing_set, validation_set, train_val_set = preprocess_data(phishing)
+    #
+    # # getting X and Y for testing, training, and validation
+    # x_test, y_test = x_y_split(testing_set)
+    # x_train, y_train = x_y_split(training_set)
+    # x_val, y_val = x_y_split(validation_set)
+    # x_train_val, y_train_val = x_y_split(train_val_set)
+    #
+    # tree = DecisionTree()
+    # profile.run('tree.fit(x_train, y_train)')
     # tree.fit(x_train, y_train)
+
+    data = pd.read_csv('test_data.csv')
+    data = data.to_numpy()
+
+    print(data[[0,2], :])
