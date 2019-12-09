@@ -11,16 +11,17 @@ class DecisionTree:
         self.min_size = min_size
         self.tree = None
 
-    def best_split(self, X, y):
+    def best_split(self, indices):
         best_attribute = None
         best_gini = float("inf")
         best_groups = None
         split_value = None
 
         for col_index in range(self.n_rows):
-            for row in X:
-                groups = self.test_split(col_index, row[col_index], X)
-                gini = self.gini_index(groups, y)
+            temp_x = np.array([self.X[item] for item in indices])
+            for row in temp_x:
+                groups = self.test_split(col_index, row[col_index], indices)
+                gini = self.gini_index(groups)
 
                 if gini < best_gini:
                     best_gini = gini
@@ -34,19 +35,18 @@ class DecisionTree:
                 'left': best_groups['left'],
                 'right': best_groups['right']}
 
-    def test_split(self, attribute, value, X):
+    def test_split(self, attribute, value, indices):
         left = []
         right = []
 
-        for index in range(len(X)):
-            if X[index, attribute] < value:
+        for index in indices:
+            if self.X[index, attribute] < value:
                 left.append(index)
             else:
                 right.append(index)
-
         return {'left': left, 'right': right}
 
-    def gini_index(self, groups, y):
+    def gini_index(self, groups):
         n_total = float(sum([len(group) for group in groups]))
         gini = 0.0
 
@@ -58,8 +58,8 @@ class DecisionTree:
 
             for class_value in self.classes:
                 count = 0
-                for item in group:
-                    if y[item] == class_value:
+                for index in group:
+                    if self.y[index] == class_value:
                         count += 1
                 p = count / size
                 score += p * p
@@ -117,7 +117,7 @@ class DecisionTree:
         self.classes = set(int(item) for item in y)
         self.n_rows = len(X[0])
 
-        root = self.best_split(X, y)
+        root = self.best_split(range(len(X)))
         self.split(root, 1)
         self.tree = root
 
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     testing_set: pd.DataFrame
     validation_set: pd.DataFrame
     train_val_set: pd.DataFrame
-    training_set, testing_set, validation_set, train_val_set = preprocess_data(phishing)
+    training_set, testing_set, validation_set, train_val_set = preprocess_data(phishing.sample(frac=0.2))
 
     # getting X and Y for testing, training, and validation
     x_test, y_test = x_y_split(testing_set)
