@@ -2,6 +2,36 @@ import pandas as pd
 import numpy as np
 from scipy.io.arff import loadarff
 
+
+class RandomForest:
+    def __init__(self, num_trees=5, max_depth=5, min_size=5):
+        self.num_trees = num_trees
+        self.max_depth = max_depth
+        self.min_depth = min_size
+        self.tree = []
+
+    def split_at(self, indices, value, attribute):
+        pass
+
+    def gini_index(self, ):
+        pass
+
+    def build_tree(self):
+        pass
+
+    def prediction(self):
+        pass
+
+    # train decision tree
+    def fit(self, dataset):
+        self.tree = []
+
+        for i in range(self.num_trees):
+            # sample = dataset.sample(n=len)
+            pass
+    pass
+
+
 # split into train, test, val
 def preprocess_data(data):
     # remove 20% for testing
