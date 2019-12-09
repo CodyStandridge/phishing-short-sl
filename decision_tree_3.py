@@ -51,17 +51,13 @@ class DecisionTree:
         gini = 0.0
 
         for group in groups.values():
-            size = len(group)
+            size = float(len(group))
             score = 0.0
-            if len(group) == 0:
+            if size == 0:
                 continue
 
             for class_value in self.classes:
-                count = 0
-                for index in group:
-                    if self.y[index] == class_value:
-                        count += 1
-                p = count / size
+                p = [self.y[index] for index in group].count(class_value) / size
                 score += p * p
 
             gini += (1.0 - score) * (size / n_total)
@@ -88,18 +84,14 @@ class DecisionTree:
         if len(right) <= self.min_size:
             node['right'] = self.leaf_node(right)
         else:
-            temp_x = np.array([self.X[item] for item in right])
-            temp_y = np.array([self.y[item] for item in right])
-            node['right'] = self.best_split(temp_x, temp_y)
+            node['right'] = self.best_split(right)
             self.split(node['right'], depth+1)
 
         # check left child
         if len(left) <= self.min_size:
             node['left'] = self.leaf_node(left)
         else:
-            temp_x = np.array([self.X[item] for item in left])
-            temp_y = np.array([self.y[item] for item in left])
-            node['left'] = self.best_split(temp_x, temp_y)
+            node['left'] = self.best_split(left)
             self.split(node['left'], depth+1)
 
     def leaf_node(self, indices):
@@ -157,7 +149,7 @@ if __name__ == '__main__':
     testing_set: pd.DataFrame
     validation_set: pd.DataFrame
     train_val_set: pd.DataFrame
-    training_set, testing_set, validation_set, train_val_set = preprocess_data(phishing.sample(frac=0.2))
+    training_set, testing_set, validation_set, train_val_set = preprocess_data(phishing.sample(frac=0.02))
 
     # getting X and Y for testing, training, and validation
     x_test, y_test = x_y_split(testing_set)
