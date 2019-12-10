@@ -1,5 +1,4 @@
 from scipy.io.arff import loadarff
-from sklearn.naive_bayes import GaussianNB
 import pandas as pd
 import numpy as np
 from collections import defaultdict
@@ -71,36 +70,8 @@ class NaiveBayes:
                 predictions.append(1)
         return predictions
 
-if __name__ == '__main__':
-    data, meta = loadarff("training.arff")
-    phishing = pd.DataFrame(data)
-    for column in phishing:
-        phishing[column] = phishing[column].str.decode('utf-8')
 
-    # I think -1 = Legitimate, 0 = Suspicious , and 1 = Phishing
-    training_set: pd.DataFrame
-    testing_set: pd.DataFrame
-    validation_set: pd.DataFrame
-    train_val_set: pd.DataFrame
-    training_set, testing_set, validation_set, train_val_set = train_test_split(phishing)
-
-    # getting X and Y for testing, training, and validation
-    x_test, y_test = x_y_split(testing_set)
-    x_train, y_train = x_y_split(training_set)
-    x_val, y_val = x_y_split(validation_set)
-    x_train_val, y_train_val = x_y_split(train_val_set)
-
-    bayes = NaiveBayes()
-    nb = GaussianNB()
-    nb.fit(x_train.to_numpy().astype(int), y_train.to_numpy().astype(int))
-    bayes.fit(x_train, y_train)
-
-    predictions = bayes.predict(x_test)
-    # predictions = nb.predict(x_test.to_numpy().astype(int))
-    # predict_probas = nb.predict_proba(x_test.to_numpy().astype(int))
-    predict_probas = bayes.predict_proba(x_test)
-    y_test = y_test.to_numpy().astype(int)
-
+def confusion_matrix(predictions, y_test):
     # find a, b, c, and d for tree, forest, and boost
     true_pos = 0
     true_neg = 0
@@ -117,48 +88,36 @@ if __name__ == '__main__':
                 false_pos += 1
             else:
                 false_neg += 1
-
     print("True Pos: {}, True Neg: {}, False Pos: {}, False Neg: {}".format(true_pos, true_neg, false_pos, false_neg))
     pod = true_pos / (true_pos + false_neg)
     pofd = false_pos / (false_pos + true_neg)
     print("POD: {}. POFD: {}".format(pod, pofd))
     print("CSI: {}".format(true_pos / (true_pos + false_pos + false_neg)))
+    print("Accuracy: {}".format((true_pos + true_neg) / (true_pos + true_neg + false_pos + false_neg)))
 
-    #ROC Curve
-    thresh = np.linspace(0, 1, 1001)
-    pod_bayes = []
-    pofd_bayes = []
 
-    for crit_thresh in thresh:
-        p_bayes = []
-        for probs in predict_probas:
-            if probs['phishing'] >= crit_thresh:
-                p_bayes.append(1)
-            else:
-                p_bayes.append(0)
-        a = 0
-        b = 0
-        c = 0
-        d = 0
+if __name__ == '__main__':
+    data, meta = loadarff("training.arff")
+    phishing = pd.DataFrame(data)
+    for column in phishing:
+        phishing[column] = phishing[column].str.decode('utf-8')
 
-        for i in range(len(y_test)):
-            if p_bayes[i] == y_test[i]:
-                if p_bayes[i] == 1:
-                    a += 1
-                else:
-                    d += 1
-            else:
-                if p_bayes[i] == 1:
-                    b += 1
-                else:
-                    c += 1
-        pod_bayes.append(a / (a + c) if (a + c) != 0 else 0)
-        pofd_bayes.append(b / (b + d) if (b + d) != 0 else 0)
+    # I think -1 = Legitimate, 0 = Suspicious , and 1 = Phishing
+    training_set: pd.DataFrame
+    testing_set: pd.DataFrame
+    validation_set: pd.DataFrame
+    train_val_set: pd.DataFrame
+    training_set, testing_set, validation_set, train_val_set = train_test_split(phishing)
 
-    # Plot Forest
-    pyplot.xlabel("POFD Bayes")
-    pyplot.ylabel("POD Bayes")
-    pyplot.title("ROC Curve Bayes")
-    pyplot.plot(pofd_bayes, pod_bayes)
-    pyplot.plot(thresh, thresh, "--")
-    pyplot.show()
+    # getting X and Y for testing, training, and validation
+    x_test, y_test = x_y_split(testing_set)
+    x_train, y_train = x_y_split(training_set)
+
+    bayes = NaiveBayes()
+    bayes.fit(x_train, y_train)
+
+    predictions = bayes.predict(x_test)
+    predict_probas = bayes.predict_proba(x_test)
+    y_test = y_test.to_numpy().astype(int)
+
+    confusion_matrix(predictions, y_test)
