@@ -281,4 +281,3 @@ if __name__ == '__main__':
     val_pred_proba = tree.predict_proba(x_val)
     stats(x_val, y_val, val_preds)
     roc_curve(val_pred_proba, y_val)
-
